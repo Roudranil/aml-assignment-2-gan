@@ -1,1 +1,5 @@
 data
+**/*.zip
+**/*.png
+submission
+**/*.synctex*
