@@ -1,0 +1,239 @@
+\documentclass[12pt]{scrartcl}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{esvect}
+\usepackage{enumitem}
+\usepackage{amsthm, amsmath, amssymb}
+\usepackage{indentfirst}
+\usepackage[affil-it]{authblk}
+\usepackage{xfrac}
+\usepackage{nicefrac}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{float}
+\usepackage{soul}
+\usepackage{xcolor}
+\usepackage{lmodern}
+\usepackage{realboxes}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{listings}
+\usepgflibrary{arrows}
+\usepackage[english]{babel}
+\usepackage[autostyle, english = american]{csquotes}
+\MakeOuterQuote{"}
+
+\KOMAoptions{abstract=true}
+\renewcommand{\labelitemi}{\scriptsize\color{blue!20!black}$\blacksquare$}
+
+\definecolor{blue}{RGB}{30, 102, 245}
+\definecolor{orange}{RGB}{221, 120, 120}
+\definecolor{red}{RGB}{210, 15, 57}
+\definecolor{green}{RGB}{64, 160, 43}
+\definecolor{grey}{RGB}{140, 143, 161}
+\definecolor{purple}{RGB}{136, 57, 239}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\definecolor{txtblue}{RGB}{52, 152, 219}
+\definecolor{txtgray}{RGB}{171, 178, 185}
+
+\definecolor{mygrey}{RGB}{242, 244, 244}
+\definecolor{myblue}{RGB}{40, 116, 166}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{RGB}{44, 62, 80}
+\definecolor{myorange}{RGB}{170, 121, 22}
+
+%% code boxes
+\newcommand{\col}[2]{\textcolor{#1}{#2}}
+\newcommand{\code}[1]{\Colorbox{grey}{\texttt{#1}}}
+\newcommand{\cdb}[1]{\texttt{#1}}
+\newcommand{\cmt}[1]{\textcolor{codegreen}{\# \texttt{#1}}}
+
+%% code highlighting
+\newcommand{\fun}[1]{\Colorbox{grey}{\col{blue}{#1}}}
+\newcommand{\var}[1]{\col{or}{#1}}
+\newcommand{\key}[1]{\Colorbox{grey}{\col{red}{#1}}}
+\newcommand{\obj}[1]{\Colorbox{grey}{\col{green}{#1}}}
+\newcommand{\str}[1]{\col{purple}{#1}}
+
+%% underline
+\makeatletter
+\DeclareRobustCommand*\myul{%
+    \def\SOUL@everyspace{\underline{\space}\kern\z@}
+    \def\SOUL@everytoken{%
+     \setbox0=\hbox{\the\SOUL@token}%
+     \ifdim\dp0>\z@
+        \the\SOUL@token
+     \else
+        \underline{\the\SOUL@token}%
+     \fi}
+\SOUL@}
+\makeatother
+
+%% setting lengths
+\setlength{\itemsep}{0em}
+\setlength{\fboxsep}{2pt}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0em}
+
+\counterwithin{equation}{section}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=cyan!80!blue,
+    filecolor=magenta,      
+    % urlcolor=black!20!cyan!80!blue,
+    urlcolor=blue,
+    citecolor=violet,
+    linktoc=all
+}
+\newcommand{\mylink}[2]{\href{{#1}}{\texttt{#2}}}
+% \addbibresource{references.bib}
+
+\newtcolorbox{mybox}[3][]{
+    colframe = #2!25,
+    colback  = #2!10,
+    coltitle = #2!20!black,  
+    title    = {\textbf{#3}},
+    #1,
+    arc = 3pt
+} 
+
+\subject{\vspace*{-4em}}
+\title{\LARGE {Advanced Machine Learning}}
+\subtitle{\Large {Assignment 2}}
+\author{\vspace*{-3.8em}}
+\date{}
+
+\begin{document}
+
+    %% title page
+    \maketitle
+    \vspace*{-2em}
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{ccc}
+            \begin{tabular}{@{}c@{}}
+                \textbf{Roudranil Das} \\
+                MDS202227 \\
+                \texttt{\href{mailto:roudranil@cmi.ac.in}{roudranil@cmi.ac.in}}
+            \end{tabular} & 
+            \begin{tabular}{@{}c@{}}
+                \textbf{Saikat Bera} \\
+                MDS202228 \\
+                \texttt{\href{mailto:saikatb@cmi.ac.in}{saikatb@cmi.ac.in}}
+            \end{tabular} &
+            \begin{tabular}{@{}c@{}}
+                \textbf{Shreyan Chakraborty} \\
+                MDS202237 \\
+                \texttt{\href{mailto:shreyanc@cmi.ac.in}{shreyanc@cmi.ac.in}}
+            \end{tabular} \\
+            & \qquad &
+        \end{tabular}\\[-3ex]
+    \end{table}
+    \hrule
+    \vspace*{0.8mm}
+    \hrule
+    \tableofcontents
+
+    \section*{About the datasets}
+
+    In the given datasets we have images consisting english digits and images consisting of dressing items. The images are \(28\times 28\) in resolution.
+
+    \section*{Processing the dataset}
+
+    The images were loaded from the corresponding csv file, where individual images are stored as rows, the columns being the pixel values. The images were then loaded as tensors and then normalised to be either between 0 and 1 or between -1 and 1 as per model architecture.
+
+    \section{Problem 1: Training a VAE for the FashionMnist dataset}
+
+    Variational Autoencoders (VAEs) are a class of generative models that are adept at learning complex data distributions. They work by encoding data into a lower-dimensional latent space and then decoding this representation back to the original data space. VAEs have been successfully applied to tasks such as image generation, denoising, and representation learning.
+
+    \subsection{Architecture}
+
+    Our VAE model is defined by an input dimension of 784, corresponding to the flattened \(28\times28\) FashionMNIST images. The model consists of a hidden layer with 64 neurons and a latent space with a dimensionality of 16. The encoder network maps input images to a latent space representation, which is then used to parameterize a normal distribution. The decoder network samples from this distribution to reconstruct the images.
+
+    \subsection{Training}
+
+    We trained our model using the Adam optimizer with a learning rate of \(1e-3\), commonly referred to as the "Karpathy constant". The model was trained for 3 epochs, with a batch size of 32. The loss function used was the mean squared error (MSE) for the reconstruction loss and the KL divergence for the latent space regularization.
+
+    \subsection{Results}
+
+    The VAE was evaluated based on its ability to reconstruct images and generate new images. The training process resulted in a steady decrease in loss, indicating that the model was learning to reconstruct the input images effectively. Generated images after training showed recognizable fashion items, demonstrating that the VAE could capture the distribution of the FashionMNIST dataset.
+
+    \begin{center}
+        \begin{figure}[H]
+        \includegraphics[width=\textwidth]{vae-randomly-sampled.png}
+            \caption{5 images generated by the model from randomly sampled \(z\) in the latent space}
+        \end{figure}
+
+        \begin{figure}[H]
+            \includegraphics[width=\textwidth]{vae-example-of-interpolation.png}
+            \caption{An example of interpolation between 2 images}
+        \end{figure}
+    \end{center}
+
+
+    \section{Problem 2: Training a GAN for MNIST dataset}
+
+    A Generative Adversarial Network (GAN) is a powerful and innovative deep learning framework designed to generate data, typically images or other complex structures, that closely resemble real data. GANs consist of two neural networks, a \texttt{Generator} and a \texttt{Discriminator} , engaged in a continuous adversarial game. This competition allows a GAN to generate data bearing resemblance to real data.
+
+    \subsection{Architecture}
+
+    The GAN consists of a \texttt{Generator} and a \texttt{Discriminator}. The \texttt{Generator} generates images from a latent space of dimension 200, where vectors are sampled with the elements of the vectors following a \(\mathcal{U}(-1, 1)\) distribution. The \texttt{Generator} utitlises transposed convolution operations to upscale the generated images to be of size \(28\times 28\).
+
+    The \texttt{Discriminator} reads images (all pixel values between -1 and 1), and then outputs probability of the image being real or fake.
+
+    The architecture was closely followed with the one described in the original DCGAN paper.
+
+    \subsection{Training}
+
+    We trained our model with the Adam optimiser with a learning rate of \(2e-4\) and a beta of \(0.5, 0.999\). It was trained first for 10 epochs and then for 50 epochs.
+
+    \subsection{Results}
+
+    During training we kept 16 randomly generated noise vectors fixed throughout the training process, which we used to evaluate the progress of the model training besides monitoring the loss. However it seemed that the images generated by the model kind of stabilised after a certain number of epochs.
+
+    \begin{center}
+        \begin{figure}[H]
+            \includegraphics[width=\textwidth]{gan-10-epochs.png}
+            \caption{Results of the model on those 16 vectors on training for 16 epochs}
+        \end{figure}
+
+        \begin{figure}[H]
+            \includegraphics[width=\textwidth]{gan-22-epochs.png}
+            \caption{The images had stabilised after 22 epochs}
+        \end{figure}
+
+        \begin{figure}[H]
+            \includegraphics[width=\textwidth]{gan-34-epochs.png}
+            \caption{Images have stabilised to this after 34 epochs}
+        \end{figure}
+    \end{center}
+
+    \section{Problem 3: Training a Conditional GAN for the MNIST dataset}
+
+    GAN's are already powerful neural networks for the generation of synthetic data. Conditional GAN's take this a step forward by conditioning the generation process on additional information, such as class labels.
+
+    \subsection{Architecture and training}
+
+    In this model, the \texttt{Generator} and the \texttt{Discriminator} are built with linear layers as a normal GAN. The difference is in the training procedure. This time the \texttt{Discriminator} is trained on both the real data and the real labels, and for \(n\) times before the \texttt{Generator} is trained once. The \texttt{Generator} generates images from the random noise and the real label is also used. Then the \texttt{Discriminator} is trained to differentiate between the two images.
+
+    \subsection{Results}
+
+    \begin{center}
+        \begin{figure}[H]
+            \includegraphics[width=\textwidth]{cgan.png}
+            \caption{Images generated by the model, each row is for one provided label}
+        \end{figure}
+    \end{center}
+
+
+
+\end{document}
